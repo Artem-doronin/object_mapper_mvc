@@ -73,7 +73,7 @@ public class CustomerController {
         if (customer.getFirstName() == null || customer.getFirstName().isEmpty()) {
             throw new IllegalArgumentException("First name is mandatory");
         }
-        if (customer.getLastName() == null || customer.getLastName().isEmpty()) {
+        if (customer.getLastName()== null || customer.getLastName().isEmpty()) {
             throw new IllegalArgumentException("Last name is mandatory");
         }
         if (customer.getEmail() == null || !customer.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {

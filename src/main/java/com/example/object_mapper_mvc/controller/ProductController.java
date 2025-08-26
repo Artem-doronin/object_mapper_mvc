@@ -74,7 +74,7 @@ public class ProductController {
             throw new IllegalArgumentException("Название продукта не может состоять только из пробелов");
         }
 
-        if (product.getPrice() != null) {
+        if (product.getPrice() == null) {
             throw new IllegalArgumentException("Поле не может быть пустым");
         }
 
