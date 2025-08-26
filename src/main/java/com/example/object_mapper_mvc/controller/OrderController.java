@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -41,6 +42,7 @@ public class OrderController {
     public ResponseEntity<String> createOrder(@RequestBody String orderJson) {
         try {
             Order order = objectMapper.readValue(orderJson, Order.class);
+            validateOrder(order);
             Order createdOrder = orderService.createOrder(order);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(objectMapper.writeValueAsString(createdOrder));
@@ -53,6 +55,7 @@ public class OrderController {
     public ResponseEntity<String> updateOrder(@PathVariable Long id, @RequestBody String orderJson) {
         try {
             Order order = objectMapper.readValue(orderJson, Order.class);
+            validateOrder(order);
             Order updatedOrder = orderService.updateOrder(id, order);
             return ResponseEntity.ok(objectMapper.writeValueAsString(updatedOrder));
         } catch (IOException e) {
@@ -64,6 +67,35 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validateOrder(Order order) {
+        // Проверка покупателя
+        if (order.getCustomer() == null) {
+            throw new IllegalArgumentException("Покупатель обязателен");
+        }
+
+        // Проверка списка продуктов
+        if (order.getProducts() == null || order.getProducts().isEmpty()) {
+            throw new IllegalArgumentException("Список продуктов обязателен");
+        }
+
+        // Проверка даты заказа
+        if (order.getOrderDate() == null) {
+            throw new IllegalArgumentException("Дата заказа обязательна");
+        }
+        if (order.getOrderDate().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Дата заказа не может быть в будущем");
+        }
+
+        // Проверка адреса доставки
+        if (order.getShippingAddress() == null || order.getShippingAddress().trim().isEmpty()) {
+            throw new IllegalArgumentException("Адрес доставки обязателен");
+        }
+        if (order.getShippingAddress().length() < 10 || order.getShippingAddress().length() > 200) {
+            throw new IllegalArgumentException("Адрес должен быть от 10 до 200 символов");
+        }
+
     }
 }
 

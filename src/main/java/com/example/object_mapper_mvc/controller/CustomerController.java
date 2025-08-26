@@ -3,6 +3,7 @@ package com.example.object_mapper_mvc.controller;
 import com.example.object_mapper_mvc.model.Customer;
 import com.example.object_mapper_mvc.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +39,10 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createCustomer(@RequestBody String customerJson) {
+    public ResponseEntity<String> createCustomer( @RequestBody String customerJson) {
         try {
             Customer customer = objectMapper.readValue(customerJson, Customer.class);
+            validateCustomer(customer);
             Customer createdCustomer = customerService.createCustomer(customer);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(objectMapper.writeValueAsString(createdCustomer));
@@ -53,6 +55,7 @@ public class CustomerController {
     public ResponseEntity<String> updateCustomer(@PathVariable Long id, @RequestBody String customerJson) {
         try {
             Customer customer = objectMapper.readValue(customerJson, Customer.class);
+            validateCustomer(customer);
             Customer updatedCustomer = customerService.updateCustomer(id, customer);
             return ResponseEntity.ok(objectMapper.writeValueAsString(updatedCustomer));
         } catch (IOException e) {
@@ -64,6 +67,21 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validateCustomer(Customer customer) {
+        if (customer.getFirstName() == null || customer.getFirstName().isEmpty()) {
+            throw new IllegalArgumentException("First name is mandatory");
+        }
+        if (customer.getLastName() == null || customer.getLastName().isEmpty()) {
+            throw new IllegalArgumentException("Last name is mandatory");
+        }
+        if (customer.getEmail() == null || !customer.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            throw new IllegalArgumentException("Email should be valid");
+        }
+        if (customer.getContactNumber() == null || customer.getContactNumber().isEmpty()) {
+            throw new IllegalArgumentException("Contact number is mandatory");
+        }
     }
 }
 

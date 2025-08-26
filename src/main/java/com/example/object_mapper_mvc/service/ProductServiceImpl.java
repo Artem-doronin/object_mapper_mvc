@@ -1,5 +1,6 @@
 package com.example.object_mapper_mvc.service;
 
+import com.example.object_mapper_mvc.exeption.ResourceNotFoundException;
 import com.example.object_mapper_mvc.model.Product;
 import com.example.object_mapper_mvc.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,26 +16,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return List.of();
+        return productRepository.findAll();
     }
 
     @Override
     public Product getProductById(Long id) {
-        return null;
+        return productRepository.findById(id).orElseThrow(()
+                -> new ResourceNotFoundException("Product not found"));
     }
 
     @Override
     public Product createProduct(Product product) {
-        return null;
+        return productRepository.save(product);
     }
 
     @Override
     public Product updateProduct(Long id, Product product) {
-        return null;
+        Product oldProduct = getProductById(id);
+        oldProduct.setName(product.getName());
+        oldProduct.setDescription(product.getDescription());
+        oldProduct.setPrice(product.getPrice());
+        oldProduct.setQuantityInStock(product.getQuantityInStock());
+        return productRepository.save(oldProduct);
     }
 
     @Override
     public void deleteProduct(Long id) {
-
+        productRepository.deleteById(id);
     }
 }
