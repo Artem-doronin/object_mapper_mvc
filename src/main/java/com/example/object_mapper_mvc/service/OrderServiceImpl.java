@@ -31,4 +31,9 @@ public class OrderServiceImpl implements OrderService {
     public void deleteOrder(Long id) {
 
     }
+
+    @Override
+    public Order updateOrder(Long id, Order order) {
+        return null;
+    }
 }
